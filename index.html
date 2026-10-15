@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO203E: Coordinate Systems in Geodesy — 3D Simülatör</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">🌐</div>
+      <div class="brand-text">
+        <h1>
+          Coordinate Systems in Geodesy <span class="brand-badge">3D Simülatör</span>
+        </h1>
+        <div class="brand-meta">
+          <a href="https://gge.ext.unb.ca/Pubs/LN16.pdf" target="_blank" rel="noopener noreferrer" class="source-link" title="E.J. Krakiwsky &amp; D.E. Wells — Lecture Notes No. 16 (PDF)">
+            Krakiwsky &amp; Wells (1971) — Lecture Notes No. 16 <span class="link-arrow">↗</span>
+          </a>
+          <span class="meta-sep">•</span>
+          <span>Hazırlayan: <strong>Melih Cihan Keleşoğlu</strong></span>
+          <button type="button" class="btn-about-trigger" id="btn-about" title="Proje ve Akademik Künye">
+            <span class="about-icon">ℹ️</span> Hakkında
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-system-controls">
+      <button class="sys-btn active" data-mode="geocentric">
+        Terrestrial Geocentric Cartesian C.S.
+      </button>
+      <button class="sys-btn" data-mode="comparison">
+        L.A.S. &amp; L.G.S. (Yan Yana Karşılaştırma)
+      </button>
+      <button class="sys-btn" data-mode="local-astronomic">
+        Local Astronomic (L.A.)
+      </button>
+      <button class="sys-btn" data-mode="local-geodetic">
+        Local Geodetic (L.G.)
+      </button>
+    </div>
+  </header>
+
+  <main class="simulator-container">
+    <div class="canvas-wrapper">
+
+      <!-- Tekli Sahne Görünümü -->
+      <div id="single-canvas-container" class="canvas-container-box">
+        <div class="info-hud" id="hud-box">
+          <div class="info-hud-header">
+            <span class="info-hud-title" id="hud-title">Terrestrial Geocentric Cartesian C.S.</span>
+            <span class="info-hud-badge badge-geo" id="hud-badge">A.T. / ECEF</span>
+          </div>
+          <div class="info-hud-body">
+            <div class="info-hud-stats" id="hud-stats"></div>
+          </div>
+        </div>
+
+        <div class="camera-hud" id="camera-hud-single">
+          <span style="font-size:0.75rem; font-weight:700; color:#8C6239; margin-right:4px;">Kamera:</span>
+          <button class="cam-btn" data-preset="perspective-wiki">İllüstrasyon Açısı</button>
+          <button class="cam-btn" data-preset="top">Ekvator / Üst</button>
+          <button class="cam-btn" data-preset="meridian">Meridyen / Yan</button>
+          <button class="cam-btn" data-preset="front">Greenwich / Ön</button>
+        </div>
+
+        <div id="three-canvas-single" style="width:100%; height:100%;"></div>
+      </div>
+
+      <!-- Yan Yana Karşılaştırma Görünümü (L.A.S. & L.G.S.) -->
+      <div id="split-canvas-container" class="split-viewports-container" style="display: none;">
+
+        <div class="viewport-card" id="viewport-las">
+          <div class="viewport-card-header">
+            <h2 class="viewport-card-title">LOCAL ASTRONOMIC SYSTEM (L.A.S.)</h2>
+          </div>
+          <div id="canvas-las" class="viewport-three-canvas"></div>
+          <div class="camera-hud viewport-camera-hud">
+            <span class="cam-hud-label">Kamera:</span>
+            <button class="cam-btn" data-preset="perspective-wiki">İllüstrasyon Açısı</button>
+            <button class="cam-btn" data-preset="top">Ekvator / Üst</button>
+            <button class="cam-btn" data-preset="meridian">Meridyen / Yan</button>
+            <button class="cam-btn" data-preset="front">Greenwich / Ön</button>
+          </div>
+          <div class="viewport-telemetry-badge" id="telemetry-las"></div>
+        </div>
+
+        <div class="viewport-card" id="viewport-lgs">
+          <div class="viewport-card-header">
+            <h2 class="viewport-card-title">LOCAL GEODETIC SYSTEM (L.G.S.)</h2>
+          </div>
+          <div id="canvas-lgs" class="viewport-three-canvas"></div>
+          <div class="camera-hud viewport-camera-hud">
+            <span class="cam-hud-label">Kamera:</span>
+            <button class="cam-btn" data-preset="perspective-wiki">İllüstrasyon Açısı</button>
+            <button class="cam-btn" data-preset="top">Ekvator / Üst</button>
+            <button class="cam-btn" data-preset="meridian">Meridyen / Yan</button>
+            <button class="cam-btn" data-preset="front">Greenwich / Ön</button>
+          </div>
+          <div class="viewport-telemetry-badge" id="telemetry-lgs"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <aside class="controls-sidebar">
+      <div id="controls-sidebar-content"></div>
+    </aside>
+  </main>
+
+  <!-- Hakkında ve Akademik Künye Modalı -->
+  <div id="about-modal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <div class="modal-header-brand">
+          <div class="modal-icon">🌐</div>
+          <div>
+            <h2 id="modal-title" class="modal-title">Coordinate Systems in Geodesy</h2>
+            <p class="modal-subtitle">GEO203E • 3D Simülatör</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-about" aria-label="Kapat">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 class="modal-section-title">Akademik Künye</h3>
+          <div class="modal-info-grid">
+            <div class="modal-info-row">
+              <span class="modal-label">Ders Sorumlusu:</span>
+              <span class="modal-value highlight">Prof. Dr. Bihter Erol</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-label">Geliştiren:</span>
+              <span class="modal-value highlight">Melih Cihan Keleşoğlu</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-label">Bölüm:</span>
+              <span class="modal-value">Geomatik Mühendisliği &amp; Makina Mühendisliği </span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-label">Kurum:</span>
+              <span class="modal-value">İstanbul Teknik Üniversitesi (İTÜ)</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-label">Ders Kaynağı:</span>
+              <span class="modal-value">
+                <a href="https://gge.ext.unb.ca/Pubs/LN16.pdf" target="_blank" rel="noopener noreferrer" class="modal-link" title="Lecture Notes No. 16 (PDF)">
+                  E.J. Krakiwsky &amp; D.E. Wells (1971), Lecture Notes No. 16, UNB ↗
+                </a>
+              </span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-label">Bağlantılar:</span>
+              <span class="modal-value modal-links-cell">
+                <a href="https://github.com/MelihCihanK/Coordinate-Systems-in-Geodesy" target="_blank" rel="noopener noreferrer" class="modal-badge-link" title="GitHub Deposu">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                  GitHub
+                </a>
+                <a href="https://www.linkedin.com/in/melihcihankelesoglu/" target="_blank" rel="noopener noreferrer" class="modal-badge-link" title="LinkedIn Profili">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+                  LinkedIn
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Proje Amacı</h3>
+          <p class="modal-desc">
+            Bu simülatör; Jeodezide kullanılan <strong>Yermerkezli Kartezyen (ECEF)</strong>, <strong>Yerel Astronomik (L.A.S.)</strong> ve <strong>Yerel Jeodezik (L.G.S.)</strong> koordinat sistemlerinin 3 boyutlu geometrisini, çekül sapması parametrelerini (&xi;, &eta;, &theta;) ve dönüşüm bağıntılarını görselleştirmek amacıyla eğitim materyali olarak geliştirilmiştir.
+          </p>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Kullanım İpuçları</h3>
+          <ul class="modal-tips-list">
+            <li><strong>Sol Tık + Sürükle:</strong> 3D sahneyi serbestçe döndürür.</li>
+            <li><strong>Sağ Tık + Sürükle:</strong> Kamerayı sahne boyunca kaydırır (pan).</li>
+            <li><strong>Fare Tekerleği:</strong> Yakınlaşma / uzaklaşma (zoom) yapar.</li>
+            <li><strong>Sağ Panel:</strong> Uydu azimutu, yükseklik açısı ve çekül sapması parametrelerini anlık değiştirir.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="modal-engine-tag">Three.js • WebGL • Vanilla JS</span>
+        <button type="button" class="modal-action-btn" id="btn-close-about-footer">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="js/bundle.js"></script>
+</body>
+</html>
